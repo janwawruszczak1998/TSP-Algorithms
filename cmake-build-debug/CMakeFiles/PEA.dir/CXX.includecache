@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Jan/Desktop/PEA/ExactAlgorithms.cpp
+ExactAlgorithms.h
+C:/Users/Jan/Desktop/PEA/ExactAlgorithms.h
+
+C:/Users/Jan/Desktop/PEA/ExactAlgorithms.h
+bits/stdc++.h
+-
+Graph.h
+C:/Users/Jan/Desktop/PEA/Graph.h
+
+C:/Users/Jan/Desktop/PEA/Graph.h
+bits/stdc++.h
+-
+
+C:/Users/Jan/Desktop/PEA/main.cpp
+bits/stdc++.h
+-
+Graph.h
+C:/Users/Jan/Desktop/PEA/Graph.h
+ExactAlgorithms.h
+C:/Users/Jan/Desktop/PEA/ExactAlgorithms.h
+
