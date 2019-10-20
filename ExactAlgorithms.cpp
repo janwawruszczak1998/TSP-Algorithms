@@ -3,7 +3,6 @@
 //
 #include "ExactAlgorithms.h"
 
-int treeSearch(Graph *pGraph, int *pInt, list<int> list);
 
 void DP(Graph *g){
 
@@ -25,12 +24,11 @@ void DP(Graph *g){
 
     //dynamic programming
     for(int bitMask = 0; bitMask < (1 << n); ++bitMask){	                    //dla każdej maski bitowej liczymy trasy
-        if(bitMask % 10000 == 0) printf("%d\n", bitMask);
         for(int v = 0; v < n; ++v){                                             //rozważamy trasy zakończone w wierzchołku V
             if( !(bitMask & (1 << v) ) ) continue;                              //jeżeli w ścieżce nie ma w ogóle wierzchołja V, to pomijamy
             for(int j = 0; j < n; ++j) {                                        //patrzymy, z którego wierzchołka J najlepiej dojść do wierzchołka V
-                if (!(bitMask & (1 << j)) && ((dp[bitMask | (1 << j)][j]) > dp[bitMask][v] + g->getMatrix()[v][j])) {   //warunki: mamy w trasie wierzchołek J i dojśćie do J i przejście do V jest tańsze niż aktualne dojście do V
-                    dp[bitMask | (1 << j)][j] = (dp[bitMask][v] + g->getMatrix()[v][j]); //jeżeli koszt dojścia do J i przejścia do V jest mniejszy niż aktualnie najlepszego osiągnięcia V jest mniejszy, to zaktualizuj
+                if (!(bitMask & (1 << j))) {   //warunki: mamy w trasie wierzchołek J i dojśćie do J i przejście do V jest tańsze niż aktualne dojście do V
+                    dp[bitMask | (1 << j)][j] = min(dp[bitMask][v]+g->getMatrix()[v][j], dp[bitMask|(1<<j)][j]);    //jeżeli koszt dojścia do J i przejścia do V jest mniejszy niż aktualnie najlepszego osiągnięcia V jest mniejszy, to zaktualizuj
                 }
             }
         }
@@ -42,7 +40,7 @@ void DP(Graph *g){
         int act = dp[(1 << n) - 1][v] + g->getMatrix()[v][0]; //koszt "powrotu" z wierzchołka v do wierzchołka 0
         if(result > act) result = act;
     }
-    std::cout << "Najtańsza ścieżka Hamiltona wyznaczona DP: "<< result << "\n";
+    std::cout << "Najtańszy cykl Hamiltona wyznaczona DP: "<< result << "\n";
     return;
 
 }
@@ -52,13 +50,17 @@ void BF(Graph *g){
     int max_val = (1 << 30);
     int *best = &max_val;
     int resoult = treeSearch(g, best, l);
-    std::cout << "Najtańsza ścieżka Hamiltona wyznaczona BF: " << resoult << "\n";
+    std::cout << "Najtańszy cykl Hamiltona wyznaczona BF: " << resoult << "\n";
     return;
 }
 
 
 void BB(Graph *g){
-    std::cout << "BB";
+    std::list<int> l;
+    int max_val = (1 << 30);
+    int *best = &max_val;
+    int resoult = treeSearch(g, best, l);
+    std::cout << "Najtańszy cykl Hamiltona wyznaczona BF: " << resoult << "\n";
     return;
 }
 
@@ -90,16 +92,16 @@ int treeSearch(Graph *g, int *best, std::list<int> vertices){
 }
 
 int calculateObjective(std::list<int> permutation, Graph *g){
-    //std::cout << "rozmiar: " << vertices.size() << "\n";
-    if(permutation.size() == g->getRank()){
-        int result = 0; int start = 0;
-        while( !permutation.empty() ){
-            result += g->getMatrix()[start][permutation.front()];
-            start = permutation.front();
-            permutation.pop_front();
-        }
-        result += g->getMatrix()[start][0];
-        //std::cout << "rozwiazanie: " << result << "\n";
-        return result;
+
+    int result = 0; int start = permutation.front(); int act = permutation.front(); int next;
+    while( !permutation.empty() ){
+        permutation.pop_front();
+        next = permutation.front();
+        result += g->getMatrix()[act][next];
+        act = next;
+
     }
+    result += g->getMatrix()[act][start];
+    return result;
+
 }

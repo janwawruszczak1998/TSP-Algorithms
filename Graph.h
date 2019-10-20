@@ -24,8 +24,11 @@ private:
     vector <vector <int> > matrix;
 
 public:
+    Graph(string name);
     Graph(int n);
     ~Graph();
+
+    void display();
 
     int getRank();
     vector< vector<int> > getMatrix();
