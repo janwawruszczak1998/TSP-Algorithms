@@ -17,23 +17,41 @@ int main(){
     char action;
     string name;
     int n;
-    Graph* g;
+    Graph* g = nullptr;
     std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
     do{
         menu();
         cin >> action;
         switch(action){
             case '1':
-                start_time = std::chrono::high_resolution_clock::now();
-                BF(g);
+                if(g != nullptr) {
+                    start_time = std::chrono::high_resolution_clock::now();
+                    BF(g);
+                }
+                else{
+                    cout << "Wczytaj pierwej graf!\n";
+                    break;
+                }
                 break;
             case '2':
-                start_time = std::chrono::high_resolution_clock::now();
-                DP(g);
+                if(g != nullptr) {
+                    start_time = std::chrono::high_resolution_clock::now();
+                    DP(g);
+                }
+                else{
+                    cout << "Wczytaj pierwej graf!\n";
+                    break;
+                }
                 break;
             case '3':
-                start_time = std::chrono::high_resolution_clock::now();
-                BB(g);
+                if(g != nullptr) {
+                    start_time = std::chrono::high_resolution_clock::now();
+                    BB(g);
+                }
+                else{
+                    cout << "Wczytaj pierwej graf!\n";
+                    break;
+                }
                 break;
             case 'u':
                 cout << "Wprowadź rozmiar i macierz grafu\n";

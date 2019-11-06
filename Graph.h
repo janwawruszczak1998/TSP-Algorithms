@@ -31,7 +31,7 @@ public:
     void display();
 
     int getRank();
-    vector< vector<int> > getMatrix();
+    vector< vector<int> >& getMatrix();
 
 
 };

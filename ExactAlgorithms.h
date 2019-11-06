@@ -12,7 +12,8 @@ void DP(Graph *g);
 void BF(Graph *g);
 void BB(Graph *g);
 
-int treeSearch(Graph *g, int*, std::list<int>);
+int treeSearch(Graph *g, int*, std::list<int> &vertices);
+int BBSearch(Graph *g, int*, std::pair<std::list<int>, int> &vertices);
 int calculateObjective(std::list<int> , Graph *g);
 
 #endif //PEA_EXACTALGORITHMS_H

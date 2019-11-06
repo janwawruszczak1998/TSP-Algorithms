@@ -18,6 +18,7 @@ void DP(Graph *g){
         }
     }
 
+
     for(int i = 0; i < n; ++i) {
         dp[(1 << i) | 1][i] = g->getMatrix()[0][i]; //na początku koszt jednokrawędziowej ścieżki Hamiltona z 0 do I to po prostu koszt krawędzi
     }
@@ -49,23 +50,12 @@ void BF(Graph *g){
     std::list<int> l; l.push_back(0);
     int max_val = (1 << 30);
     int *best = &max_val;
-    int resoult = treeSearch(g, best, l);
-    std::cout << "Najtańszy cykl Hamiltona wyznaczona BF: " << resoult << "\n";
+    int result = treeSearch(g, best, l);
+    std::cout << "Najtańszy cykl Hamiltona wyznaczona BF: " << result << "\n";
     return;
 }
 
-
-void BB(Graph *g){
-    std::list<int> l;
-    int max_val = (1 << 30);
-    int *best = &max_val;
-    int resoult = treeSearch(g, best, l);
-    std::cout << "Najtańszy cykl Hamiltona wyznaczona BF: " << resoult << "\n";
-    return;
-}
-
-
-int treeSearch(Graph *g, int *best, std::list<int> vertices){
+int treeSearch(Graph *g, int *best, std::list<int> &vertices){
 
     if(vertices.size() == g->getRank()){
         int result = calculateObjective(vertices, g);
@@ -85,6 +75,48 @@ int treeSearch(Graph *g, int *best, std::list<int> vertices){
             vertices.push_back(i);
             treeSearch(g, best, vertices);
             vertices.pop_back();
+        }
+        else continue;
+    }
+    return *best;
+}
+
+void BB(Graph *g){
+    std::list<int> l;
+    std::pair<std::list<int>, int> vertices = make_pair(l, 0);
+    int maxVal = (1 << 30);
+    int *best = &maxVal;
+    int result = BBSearch(g, best, vertices);
+    std::cout << "Najtańszy cykl Hamiltona wyznaczona B&B: " << result << "\n";
+    return;
+}
+
+
+int BBSearch(Graph *g, int *best, std::pair<std::list<int>, int> &vertices){
+
+
+     if(vertices.second >= *best) return 0;
+
+    if(vertices.first.size() == g->getRank()){
+        int result = calculateObjective(vertices.first, g);
+        if(*best > result) *best = result;
+        return 0;
+    }
+
+    for(int i = 0; i < g->getRank(); ++i){
+        bool exist = false;
+        for(int j : vertices.first){
+            if(j == i){
+                exist = true;
+                break;
+            }
+        }
+        if(!exist){
+            vertices.second += g->getMatrix()[vertices.first.back()][i];
+            vertices.first.push_back(i);
+            BBSearch(g, best, vertices);
+            vertices.first.pop_back();
+            vertices.second -= g->getMatrix()[vertices.first.back()][i];
         }
         else continue;
     }

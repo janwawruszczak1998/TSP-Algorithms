@@ -59,6 +59,7 @@ Graph::~Graph(){
 }
 
 void Graph::display(){
+    cout << "Size: " << this->getRank() << "\n";
     for(int i = 0; i < getRank(); ++i){
         for(int j = 0; j <getRank(); ++j)
             cout << getMatrix()[i][j] << " ";
@@ -72,6 +73,6 @@ int Graph::getRank() {
 }
 
 
-vector< vector<int> > Graph::getMatrix(){
+vector< vector<int> > &Graph::getMatrix(){
     return matrix;
 }
