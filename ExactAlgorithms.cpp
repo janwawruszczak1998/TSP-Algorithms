@@ -27,9 +27,9 @@ void DP(Graph *g){
     for(int bitMask = 0; bitMask < (1 << n); ++bitMask){	                    //dla każdej maski bitowej liczymy trasy
         for(int v = 0; v < n; ++v){                                             //rozważamy trasy zakończone w wierzchołku V
             if( !(bitMask & (1 << v) ) ) continue;                              //jeżeli w ścieżce nie ma w ogóle wierzchołja V, to pomijamy
-            for(int j = 0; j < n; ++j) {                                        //patrzymy, z którego wierzchołka J najlepiej dojść do wierzchołka V
-                if (!(bitMask & (1 << j))) {   //warunki: mamy w trasie wierzchołek J i dojśćie do J i przejście do V jest tańsze niż aktualne dojście do V
-                    dp[bitMask | (1 << j)][j] = min(dp[bitMask][v]+g->getMatrix()[v][j], dp[bitMask|(1<<j)][j]);    //jeżeli koszt dojścia do J i przejścia do V jest mniejszy niż aktualnie najlepszego osiągnięcia V jest mniejszy, to zaktualizuj
+            for(int j = 0; j < n; ++j){                                         //patrzymy, do którego wierzchołka J możemy dojść z V
+                if (!(bitMask & (1 << j))){                                     //jeśli wierzchołka J nie ma w trasie
+                    dp[bitMask | (1 << j)][j] = std::min(dp[bitMask][v]+g->getMatrix()[v][j], dp[bitMask|(1 << j)][j]);    //jeżeli koszt dojścia do V i przejścia do J jest mniejszy od aktualnie najlepszego osiągnięcia J, to zaktualizuj
                 }
             }
         }
@@ -41,6 +41,12 @@ void DP(Graph *g){
         int act = dp[(1 << n) - 1][v] + g->getMatrix()[v][0]; //koszt "powrotu" z wierzchołka v do wierzchołka 0
         if(result > act) result = act;
     }
+
+    for(int i = 0; i < (1 << n); ++i){
+        delete[] dp[i];
+    }
+    delete[] dp;
+
     std::cout << "Najtańszy cykl Hamiltona wyznaczona DP: "<< result << "\n";
     return;
 
@@ -50,12 +56,12 @@ void BF(Graph *g){
     std::list<int> l; l.push_back(0);
     int max_val = (1 << 30);
     int *best = &max_val;
-    int result = treeSearch(g, best, l);
+    int result = BFSearch(g, best, l);
     std::cout << "Najtańszy cykl Hamiltona wyznaczona BF: " << result << "\n";
     return;
 }
 
-int treeSearch(Graph *g, int *best, std::list<int> &vertices){
+int BFSearch(Graph *g, int *best, std::list<int> &vertices){
 
     if(vertices.size() == g->getRank()){
         int result = calculateObjective(vertices, g);
@@ -73,7 +79,7 @@ int treeSearch(Graph *g, int *best, std::list<int> &vertices){
         }
         if(!exist){
             vertices.push_back(i);
-            treeSearch(g, best, vertices);
+            BFSearch(g, best, vertices);
             vertices.pop_back();
         }
         else continue;
@@ -82,10 +88,14 @@ int treeSearch(Graph *g, int *best, std::list<int> &vertices){
 }
 
 void BB(Graph *g){
-    std::list<int> l;
+    std::list<int> l; vector<int> v; v.resize(g->getRank(), 0);
     std::pair<std::list<int>, int> vertices = make_pair(l, 0);
-    int maxVal = (1 << 30);
-    int *best = &maxVal;
+    int greedyPathVal = greedyPath(g, 0, v, 0);
+    int randomPathVal = 1e9;
+    for(int i = 0; i < g->getRank()*g->getRank(); ++i){
+        randomPathVal = std::min(randomPathVal, randomPath(g->getRank(), g) );
+    }
+    int *best = &(randomPathVal < greedyPathVal ? randomPathVal : greedyPathVal);
     int result = BBSearch(g, best, vertices);
     std::cout << "Najtańszy cykl Hamiltona wyznaczona B&B: " << result << "\n";
     return;
@@ -135,5 +145,37 @@ int calculateObjective(std::list<int> permutation, Graph *g){
     }
     result += g->getMatrix()[act][start];
     return result;
+
+}
+
+int randomPath(int n, Graph* g){
+
+    std::list<int> randomPerm;
+    std::vector<int> v;
+    for(int i = 0; i < n; ++i) v.push_back(i);
+    std::random_shuffle(v.begin(), v.end());     //przetasowanie na vectorze
+    for(int i = 0; i < n; ++i) randomPerm.push_back( v[i] );
+    return calculateObjective(randomPerm, g);
+
+}
+
+int greedyPath(Graph* g, int row, vector<int> &visited, int result){
+    if(row == g->getRank() - 1 ){
+        result += g->getMatrix()[row][0];
+        return result;
+    }
+    int minValInRow = 1e9; int nearestNeighbour = 0;
+    for(int i = 0; i < g->getRank(); ++i){
+        if(visited[i]) continue;
+        if(minValInRow > g->getMatrix()[row][i] && i != row){
+            minValInRow = g->getMatrix()[row][i];
+            nearestNeighbour = i;
+            visited[i] = 1;
+        }
+    }
+
+    result += g->getMatrix()[row][nearestNeighbour];
+
+    return greedyPath(g, ++row, visited, result);
 
 }

@@ -12,8 +12,10 @@ void DP(Graph *g);
 void BF(Graph *g);
 void BB(Graph *g);
 
-int treeSearch(Graph *g, int*, std::list<int> &vertices);
-int BBSearch(Graph *g, int*, std::pair<std::list<int>, int> &vertices);
-int calculateObjective(std::list<int> , Graph *g);
+int BFSearch(Graph *, int*, std::list<int> &);
+int BBSearch(Graph *, int*, std::pair<std::list<int>, int> &);
+int calculateObjective(std::list<int> , Graph *);
+int randomPath(int, Graph *);
+int greedyPath(Graph *, int, vector<int> &, int);
 
 #endif //PEA_EXACTALGORITHMS_H

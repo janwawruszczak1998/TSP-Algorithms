@@ -26,7 +26,7 @@ Graph::Graph(string name){
         for (int j = 0; j < n; ++j){
             in >> cost;
             if(i == j) matrix[i][j] = 0;
-            matrix[i][j] = cost;
+            else matrix[i][j] = cost;
         }
     }
 
@@ -43,8 +43,8 @@ Graph::Graph(int n){
     for(int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j){
             std::cin >> cost;
-            if(i == j) matrix[i][j] = 0;
-            matrix[i][j] = cost;
+            if(cost == -1){ std::cout << "-";}
+            else matrix[i][j] = cost;
         }
     }
 
