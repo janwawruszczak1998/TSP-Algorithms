@@ -88,28 +88,56 @@ int BFSearch(Graph *g, int *best, std::list<int> &vertices){
 }
 
 void BB(Graph *g){
-    std::list<int> l; vector<int> v; v.resize(g->getRank(), 0);
-    std::pair<std::list<int>, int> vertices = make_pair(l, 0);
+    std::list<int> l; l.push_back(0); vector<int> v; v.resize(g->getRank(), 0); //lista na sciezki Hamiltona w grafie
+    std::pair<std::list<int>, int> vertices = make_pair(l, 0);  //vector na zachlann sciezke
+
+    v[0] = 1;
     int greedyPathVal = greedyPath(g, 0, v, 0);
+
     int randomPathVal = 1e9;
     for(int i = 0; i < g->getRank()*g->getRank(); ++i){
         randomPathVal = std::min(randomPathVal, randomPath(g->getRank(), g) );
     }
-    int *best = &(randomPathVal < greedyPathVal ? randomPathVal : greedyPathVal);
-    int result = BBSearch(g, best, vertices);
+
+    int* minimalEdges = getMinimalEdges(g); //potrzebne do liczenia lowebounda
+    int lb = calculateLowerBound(minimalEdges, g->getRank());
+    int* lowerBound = &lb;
+    int *upperBound = &(randomPathVal < greedyPathVal ? randomPathVal : greedyPathVal);   //wybranie upperbounda z najlepszej sciezki losowej i zachlannej
+
+    int result = BBSearch(g, lowerBound, upperBound, vertices, minimalEdges);
     std::cout << "Najtańszy cykl Hamiltona wyznaczona B&B: " << result << "\n";
     return;
 }
 
+int calculateLowerBound(int* minimalEdges, int size){
+    int sum = 0;
+    for(int i = 0; i < size; ++i){
+        sum += minimalEdges[i];
+    }
 
-int BBSearch(Graph *g, int *best, std::pair<std::list<int>, int> &vertices){
+    return sum;
+}
 
+int* getMinimalEdges(Graph* g){
+    int n = g->getRank();
+    int* table = new int[n];
+    for(int i = 0; i < n; ++i){
+        int min = 1e9;
+        for(int j = 0; j < n; ++j){
+            if(i != j && min > g->getMatrix()[i][j]) min = g->getMatrix()[i][j];
+        }
+        table[i] = min;
+    }
+    return table;
+}
 
-     if(vertices.second >= *best) return 0;
+int BBSearch(Graph *g, int* lowerBound, int* upperBound, std::pair<std::list<int>, int> &vertices, int* minimalEdges){
+
+    if(vertices.second > *upperBound) return 0;
 
     if(vertices.first.size() == g->getRank()){
         int result = calculateObjective(vertices.first, g);
-        if(*best > result) *best = result;
+        if(*upperBound > result)  *upperBound = result;
         return 0;
     }
 
@@ -123,14 +151,19 @@ int BBSearch(Graph *g, int *best, std::pair<std::list<int>, int> &vertices){
         }
         if(!exist){
             vertices.second += g->getMatrix()[vertices.first.back()][i];
+            *lowerBound = *lowerBound - minimalEdges[i] + g->getMatrix()[vertices.first.back()][i];
             vertices.first.push_back(i);
-            BBSearch(g, best, vertices);
+            if( (*upperBound >= *lowerBound) && (vertices.second <= *upperBound))//jezeli przejście do wierzchołka nie przekresla szansy na otrzymanie lepszego cyklu Hamiltona
+            {
+                BBSearch(g, lowerBound, upperBound, vertices, minimalEdges);
+            }
             vertices.first.pop_back();
+            *lowerBound = *lowerBound + minimalEdges[i] - g->getMatrix()[vertices.first.back()][i];
             vertices.second -= g->getMatrix()[vertices.first.back()][i];
         }
         else continue;
     }
-    return *best;
+    return *upperBound;
 }
 
 int calculateObjective(std::list<int> permutation, Graph *g){
@@ -173,7 +206,6 @@ int greedyPath(Graph* g, int row, vector<int> &visited, int result){
             visited[i] = 1;
         }
     }
-
     result += g->getMatrix()[row][nearestNeighbour];
 
     return greedyPath(g, ++row, visited, result);
