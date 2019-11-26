@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/PEA.dir/main.cpp.obj"
   "CMakeFiles/PEA.dir/Graph.cpp.obj"
   "CMakeFiles/PEA.dir/ExactAlgorithms.cpp.obj"
+  "CMakeFiles/PEA.dir/LocalSearchAlgorithms.cpp.obj"
   "PEA.pdb"
   "PEA.exe"
   "PEA.exe.manifest"
