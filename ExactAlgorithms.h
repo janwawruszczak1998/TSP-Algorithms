@@ -14,7 +14,7 @@ void BB(Graph *g);
 
 int BFSearch(Graph *, int*, std::list<int> &);
 int BBSearch(Graph *, int*, int*, std::pair<std::list<int>, int> &, int *);
-int calculateObjective(std::list<int> , Graph *);
+int calculateObjective(std::list<int>& , Graph *);
 int randomPath(int, Graph *);
 int greedyPath(Graph *, int, vector<int> &, int);
 int* getMinimalEdges(Graph *);

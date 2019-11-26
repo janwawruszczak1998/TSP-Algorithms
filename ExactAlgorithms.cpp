@@ -2,7 +2,9 @@
 // Created by Jan on 2019-10-07.
 //
 #include "ExactAlgorithms.h"
-
+//Dynamik
+//
+//
 
 void DP(Graph *g){
 
@@ -42,6 +44,7 @@ void DP(Graph *g){
         if(result > act) result = act;
     }
 
+    //zwolnienie pamięci
     for(int i = 0; i < (1 << n); ++i){
         delete[] dp[i];
     }
@@ -51,6 +54,8 @@ void DP(Graph *g){
     return;
 
 }
+
+
 
 void BF(Graph *g){
     std::list<int> l; l.push_back(0);
@@ -86,53 +91,38 @@ int BFSearch(Graph *g, int *best, std::list<int> &vertices){
     }
     return *best;
 }
-
+//algorytm B&B
+//
+//preprocessing podziału i ograniczeń
 void BB(Graph *g){
     std::list<int> l; l.push_back(0); vector<int> v; v.resize(g->getRank(), 0); //lista na sciezki Hamiltona w grafie
-    std::pair<std::list<int>, int> vertices = make_pair(l, 0);  //vector na zachlann sciezke
+    std::pair<std::list<int>, int> vertices = make_pair(l, 0);  //vector na zachlanna sciezke
 
     v[0] = 1;
-    int greedyPathVal = greedyPath(g, 0, v, 0);
+    int greedyPathVal = greedyPath(g, 0, v, 0); //obliczenie zachlannej sciezki
 
+    //ustalenie najlepszej losowej sciezki
     int randomPathVal = 1e9;
     for(int i = 0; i < g->getRank()*g->getRank(); ++i){
         randomPathVal = std::min(randomPathVal, randomPath(g->getRank(), g) );
     }
 
-    int* minimalEdges = getMinimalEdges(g); //potrzebne do liczenia lowebounda
-    int lb = calculateLowerBound(minimalEdges, g->getRank());
+    int* minimalEdges = getMinimalEdges(g); //tablica najtanszych krawedzi z kazdego wierzcholka
+    int lb = calculateLowerBound(minimalEdges, g->getRank());   //obliczenie dolnego ograniczenia
     int* lowerBound = &lb;
-    int *upperBound = &(randomPathVal < greedyPathVal ? randomPathVal : greedyPathVal);   //wybranie upperbounda z najlepszej sciezki losowej i zachlannej
+
+    //wybranie gornego ograniczenia z najlepszej sciezki losowej i zachlannej
+    int *upperBound = &(randomPathVal < greedyPathVal ? randomPathVal : greedyPathVal);
 
     int result = BBSearch(g, lowerBound, upperBound, vertices, minimalEdges);
     std::cout << "Najtańszy cykl Hamiltona wyznaczona B&B: " << result << "\n";
     return;
 }
 
-int calculateLowerBound(int* minimalEdges, int size){
-    int sum = 0;
-    for(int i = 0; i < size; ++i){
-        sum += minimalEdges[i];
-    }
-
-    return sum;
-}
-
-int* getMinimalEdges(Graph* g){
-    int n = g->getRank();
-    int* table = new int[n];
-    for(int i = 0; i < n; ++i){
-        int min = 1e9;
-        for(int j = 0; j < n; ++j){
-            if(i != j && min > g->getMatrix()[i][j]) min = g->getMatrix()[i][j];
-        }
-        table[i] = min;
-    }
-    return table;
-}
 
 int BBSearch(Graph *g, int* lowerBound, int* upperBound, std::pair<std::list<int>, int> &vertices, int* minimalEdges){
 
+    //nie rozwazamy sciezek gorszych, niz oszacowanie gorne cyklu
     if(vertices.second > *upperBound) return 0;
 
     if(vertices.first.size() == g->getRank()){
@@ -166,7 +156,7 @@ int BBSearch(Graph *g, int* lowerBound, int* upperBound, std::pair<std::list<int
     return *upperBound;
 }
 
-int calculateObjective(std::list<int> permutation, Graph *g){
+int calculateObjective(std::list<int>& permutation, Graph *g){
 
     int result = 0; int start = permutation.front(); int act = permutation.front(); int next;
     while( !permutation.empty() ){
@@ -179,6 +169,29 @@ int calculateObjective(std::list<int> permutation, Graph *g){
     result += g->getMatrix()[act][start];
     return result;
 
+}
+
+
+int calculateLowerBound(int* minimalEdges, int size){
+    int sum = 0;
+    for(int i = 0; i < size; ++i){
+        sum += minimalEdges[i];
+    }
+
+    return sum;
+}
+
+int* getMinimalEdges(Graph* g){
+    int n = g->getRank();
+    int* table = new int[n];
+    for(int i = 0; i < n; ++i){
+        int min = 1e9;
+        for(int j = 0; j < n; ++j){
+            if(i != j && min > g->getMatrix()[i][j]) min = g->getMatrix()[i][j];
+        }
+        table[i] = min;
+    }
+    return table;
 }
 
 int randomPath(int n, Graph* g){
