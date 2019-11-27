@@ -176,6 +176,33 @@ Graph.cpp.s:
 	$(MAKE) -f CMakeFiles\PEA.dir\build.make CMakeFiles/PEA.dir/Graph.cpp.s
 .PHONY : Graph.cpp.s
 
+LocalSearchAlgorithms.obj: LocalSearchAlgorithms.cpp.obj
+
+.PHONY : LocalSearchAlgorithms.obj
+
+# target to build an object file
+LocalSearchAlgorithms.cpp.obj:
+	$(MAKE) -f CMakeFiles\PEA.dir\build.make CMakeFiles/PEA.dir/LocalSearchAlgorithms.cpp.obj
+.PHONY : LocalSearchAlgorithms.cpp.obj
+
+LocalSearchAlgorithms.i: LocalSearchAlgorithms.cpp.i
+
+.PHONY : LocalSearchAlgorithms.i
+
+# target to preprocess a source file
+LocalSearchAlgorithms.cpp.i:
+	$(MAKE) -f CMakeFiles\PEA.dir\build.make CMakeFiles/PEA.dir/LocalSearchAlgorithms.cpp.i
+.PHONY : LocalSearchAlgorithms.cpp.i
+
+LocalSearchAlgorithms.s: LocalSearchAlgorithms.cpp.s
+
+.PHONY : LocalSearchAlgorithms.s
+
+# target to generate assembly for a file
+LocalSearchAlgorithms.cpp.s:
+	$(MAKE) -f CMakeFiles\PEA.dir\build.make CMakeFiles/PEA.dir/LocalSearchAlgorithms.cpp.s
+.PHONY : LocalSearchAlgorithms.cpp.s
+
 main.obj: main.cpp.obj
 
 .PHONY : main.obj
@@ -218,6 +245,9 @@ help:
 	@echo ... Graph.obj
 	@echo ... Graph.i
 	@echo ... Graph.s
+	@echo ... LocalSearchAlgorithms.obj
+	@echo ... LocalSearchAlgorithms.i
+	@echo ... LocalSearchAlgorithms.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s
