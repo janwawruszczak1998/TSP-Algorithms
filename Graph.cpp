@@ -59,20 +59,20 @@ Graph::~Graph(){
 }
 
 void Graph::display(){
-    cout << "Size: " << this->getRank() << "\n";
-    for(int i = 0; i < getRank(); ++i){
-        for(int j = 0; j <getRank(); ++j)
-            cout << getMatrix()[i][j] << " ";
+    cout << "Size: " << this->get_rank() << "\n";
+    for(int i = 0; i < get_rank(); ++i){
+        for(int j = 0; j <get_rank(); ++j)
+            cout << get_matrix()[i][j] << " ";
         cout << "\n";
     }
     return;
 }
 
-int Graph::getRank() {
+int Graph::get_rank() {
     return n;
 }
 
 
-vector< vector<int> > &Graph::getMatrix(){
+vector< vector<int> > &Graph::get_matrix(){
     return matrix;
 }

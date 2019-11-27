@@ -13,10 +13,9 @@ using namespace std;
 void TS(Graph *g);
 void SA(Graph *g);
 
-double getProbability(int ,double);
-int randomPath(std::vector<int>&, Graph* );
-int greedyyPath(Graph *, int, vector<int> &, int);
-int calculateObjective(std::vector<int>&, Graph *);
+double get_probability(int ,double);
+int random_path(std::vector<int>&, Graph* );
+int calculate_objective(std::vector<int>&, Graph *);
 double cooling(double, int);
 
 

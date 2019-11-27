@@ -15,7 +15,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-typedef pair<int, int> para;
 
 class Graph{
 private:
@@ -29,8 +28,8 @@ public:
 
     void display();
 
-    int getRank();
-    vector< vector<int> >& getMatrix();
+    int get_rank();
+    vector< vector<int> >& get_matrix();
 
 
 };

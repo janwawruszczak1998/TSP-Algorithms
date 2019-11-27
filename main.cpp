@@ -10,6 +10,7 @@ void menu(){
     cout << "2, aby uruchomić DP\n";
     cout << "3, aby uruchomić B&B\n";
     cout << "4, aby uruchomić SA\n";
+    cout << "5, aby uruchomić TS\n";
     cout << "u, aby wczytać dane wprowadzane ręcznie\n";
     cout << "a, aby wczytać dane wprowadzane z pliku\n";
     cout << "0, aby zakończyć\n";
@@ -76,7 +77,6 @@ int main(){
                     break;
                 }
                 break;
-
             case 'u':
                 cout << "Wprowadź rozmiar i macierz grafu\n";
                 cin >> n;

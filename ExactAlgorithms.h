@@ -12,12 +12,12 @@ void DP(Graph *g);
 void BF(Graph *g);
 void BB(Graph *g);
 
-int BFSearch(Graph *, int*, std::list<int> &);
-int BBSearch(Graph *, int*, int*, std::pair<std::list<int>, int> &, int *);
-int calculateObjective(std::list<int>& , Graph *);
-int randomPath(int, Graph *);
-int greedyPath(Graph *, int, vector<int> &, int);
-int* getMinimalEdges(Graph *);
-int calculateLowerBound(int *, int);
+int BF_search(Graph *, int*, std::list<int> &);
+int BB_search(Graph *, int*, int*, std::pair<std::list<int>, int> &, int *);
+int calculate_objective(std::list<int>& , Graph *);
+int random_path(int, Graph *);
+int greedy_path(Graph *, int, vector<int> &, int);
+int* get_minimal_edges(Graph *);
+int calculate_lower_bound(int *, int);
 
 #endif //PEA_EXACTALGORITHMS_H

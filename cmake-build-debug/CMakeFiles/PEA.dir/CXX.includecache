@@ -6,6 +6,12 @@
 
 #IncludeRegexTransform: 
 
+C:/Users/Jan/Desktop/PEA/ExactAlgorithms.h
+bits/stdc++.h
+-
+Graph.h
+C:/Users/Jan/Desktop/PEA/Graph.h
+
 C:/Users/Jan/Desktop/PEA/Graph.h
 bits/stdc++.h
 -
@@ -13,6 +19,8 @@ bits/stdc++.h
 C:/Users/Jan/Desktop/PEA/LocalSearchAlgorithms.cpp
 LocalSearchAlgorithms.h
 C:/Users/Jan/Desktop/PEA/LocalSearchAlgorithms.h
+ExactAlgorithms.h
+C:/Users/Jan/Desktop/PEA/ExactAlgorithms.h
 
 C:/Users/Jan/Desktop/PEA/LocalSearchAlgorithms.h
 bits/stdc++.h
