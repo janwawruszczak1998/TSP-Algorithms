@@ -24,7 +24,7 @@ void SA(Graph *g){
         while(temperature > 0.1){
 
             iteration++;
-            int rep = g->get_rank()*g->get_rank();  //liczba obrotow = n^2
+            int rep = g->get_rank();  //liczba obrotow (sprawdzen sasiadow w pokoleniu) = n
             next_step = permutation;
             step_val = calculate_objective(next_step, g);   //wartosc kroku
 
@@ -64,7 +64,7 @@ void SA(Graph *g){
                                + g->get_matrix()[next_step[f_pos]][next_step[next_s_pos]];
                     std::swap(next_step[f_pos], next_step[s_pos]);
                 }
-
+                if(step_val != calculate_objective(next_step, g) ) cout << "!";
                 int difference = step_val - result; //roznica rozwiazan najlepszego i aktualnego
 
 
@@ -79,7 +79,7 @@ void SA(Graph *g){
                 }
 
                 //decyzja o przyjeciu/odrzuceniu rozwiazania
-                if(difference < 0 || (difference >0 &&  get_probability(difference, temperature) > ( (double) rand() / (RAND_MAX)) + 1) ){
+                if(difference < 0 || (difference > 0 &&  get_probability(difference, temperature) > ( (double) rand() / (RAND_MAX)) + 1) ){
                     permutation = next_step;
                 }
 
@@ -106,6 +106,7 @@ void TS(Graph *g){
     //preprocessing
     std::vector<int> permutation, solution;
     int result = random_path(permutation, g);
+    int curr_val = calculate_objective(permutation, g);
     std::vector<std::vector<int> > tabu_list;
     tabu_list.resize(g->get_rank());
     for(std::vector<vector<int> >::iterator it = tabu_list.begin(); it != tabu_list.end(); ++it){
@@ -121,30 +122,36 @@ void TS(Graph *g){
             int next_step_val = std::numeric_limits<int>::max();
 
             int f_tabu = 0, s_tabu = 0;
-            for (int i = 0; i < g->get_rank(); ++i) {
-                for (int j = i + 1; j < g->get_rank(); ++j) {
-                    swap(permutation[i], permutation[j]);
-                    int curr_val = calculate_objective(permutation, g);
+            for (int f_pos = 0; f_pos < g->get_rank(); ++f_pos) {
+                for (int s_pos = f_pos + 1; s_pos < g->get_rank(); ++s_pos) {
+
+                    int curr_val_tmp = curr_val;
+                    std::swap(permutation[f_pos], permutation[s_pos]);
+                    curr_val = calculate_objective(permutation, g);
+
+
                     if(curr_val < result){
                         result = curr_val;
                         solution = permutation;
                     }
                     if (curr_val < next_step_val) {
-                        if (tabu_list[j][i] <= step) {
-                            s_tabu = i;
-                            f_tabu = j;
+                        if (tabu_list[s_pos][f_pos] <= step) {
+                            s_tabu = f_pos;
+                            f_tabu = s_pos;
                             next_step = permutation;
                             next_step_val = curr_val;
                         }
                     }
-                    swap(permutation[i], permutation[j]);
+
+                    std::swap(permutation[f_pos], permutation[s_pos]);
+                    curr_val = curr_val_tmp;
                 }
             }
             permutation = next_step;
             tabu_list[f_tabu][s_tabu] += g->get_rank();
         }
 
-        //generate new  solution;
+        //nowa wylosowane podejscie
         permutation.clear();
         random_path(permutation, g);
         for(std::vector<vector<int> >::iterator it = tabu_list.begin(); it != tabu_list.end(); ++it){
@@ -185,10 +192,13 @@ int random_path(std::vector<int>& v, Graph* g){
 
 int calculate_objective(std::vector<int>& permutation, Graph *g){
     int result = 0;
+
     for(std::vector<int>::iterator it = permutation.begin(); it + 1 != permutation.end(); ++it) {
         result += g->get_matrix()[*it][*(it + 1)];
+
     }
-    result += g->get_matrix()[*(permutation.end() - 1)][*permutation.begin()];
+
+    result += g->get_matrix()[*(permutation.end() - 1)][*(permutation.begin())];
     return result;
 
 }
