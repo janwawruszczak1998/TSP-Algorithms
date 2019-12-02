@@ -4,6 +4,7 @@
 
 #include "LocalSearchAlgorithms.h"
 #include "ExactAlgorithms.h"
+#include <unistd.h>
 
 
 void SA(Graph *g){
@@ -24,7 +25,7 @@ void SA(Graph *g){
         while(temperature > 0.1){
 
             iteration++;
-            int rep = g->get_rank();  //liczba obrotow (sprawdzen sasiadow w pokoleniu) = n
+            int rep = 3*g->get_rank();  //liczba obrotow (sprawdzen sasiadow w pokoleniu) = 3n
             next_step = permutation;
             step_val = calculate_objective(next_step, g);   //wartosc kroku
 
@@ -64,9 +65,9 @@ void SA(Graph *g){
                                + g->get_matrix()[next_step[f_pos]][next_step[next_s_pos]];
                     std::swap(next_step[f_pos], next_step[s_pos]);
                 }
-                if(step_val != calculate_objective(next_step, g) ) cout << "!";
-                int difference = step_val - result; //roznica rozwiazan najlepszego i aktualnego
+                //if(step_val != calculate_objective(next_step, g) ) cout << "!";
 
+                int difference = step_val - result; //roznica rozwiazan najlepszego i aktualnego
 
                 if(step_val < result){  //jesli poprawilismy, wyzeruj wskaznik stagnacji i aktualizuj rezultat
                     stagnation = 0;
@@ -75,14 +76,19 @@ void SA(Graph *g){
                 }
                 else{   //jesli nie poprawilismy, to zwieksz wskaznik stagnacji
                     stagnation++;
-                    if(stagnation < g->get_rank()) temperature = (1e9)/2;   //jesli stagnacja jest duza, to zwieksz temperature
+                    if(stagnation < g->get_rank()) temperature = (double)(1e9)/2;   //jesli stagnacja jest duza, to zwieksz temperature
+                    //moze zrobic duzego inverta? jesli sama temperatura nie wystarcza?
+
                 }
 
                 //decyzja o przyjeciu/odrzuceniu rozwiazania
                 if(difference < 0 || (difference > 0 &&  get_probability(difference, temperature) > ( (double) rand() / (RAND_MAX)) + 1) ){
                     permutation = next_step;
+                    break;
                 }
-
+                else{
+                    std::swap(next_step[f_pos], next_step[s_pos]);
+                }
 
             }
             temperature = cooling(temperature, iteration);  //akutalizacja temperatury
@@ -115,27 +121,43 @@ void TS(Graph *g){
     std::vector<int> next_step;
 
 
-    //algorytm przeszukiwania z zakazami
-    for(int num_of_try = 0; num_of_try < 200; ++num_of_try) {
-        std::cout << num_of_try/2 << "%\n";
-        for (int step = 0; step < 15*g->get_rank(); ++step) {
+        //algorytm przeszukiwania z zakazami
+    for(int num_of_try = 0; num_of_try < 100; ++num_of_try) { // 200 losowych instancji
+        std::cout << num_of_try << "%\n";
+        for (int step = 0; step < 15*g->get_rank(); ++step) {   // liczba "ruchów" w calym pokoleniu
             int next_step_val = std::numeric_limits<int>::max();
 
             int f_tabu = 0, s_tabu = 0;
+            //przeglad ruchow w pozycji
             for (int f_pos = 0; f_pos < g->get_rank(); ++f_pos) {
                 for (int s_pos = f_pos + 1; s_pos < g->get_rank(); ++s_pos) {
 
                     int curr_val_tmp = curr_val;
-                    std::swap(permutation[f_pos], permutation[s_pos]);
-                    curr_val = calculate_objective(permutation, g);
 
+                    if(s_pos - f_pos == 1 || s_pos == g->get_rank() - 1 || f_pos == 0){ //krancowe przypadki ruchow - aktualizacja O(n)
+                        std::swap(permutation[f_pos], permutation[s_pos]);
+                        curr_val = calculate_objective(permutation, g);
+                    }
+                    else{   //ogolny przypadek - aktualizacja w O(1)
+                        curr_val = curr_val
+                                   - g->get_matrix()[permutation[f_pos - 1]][permutation[f_pos]]
+                                   - g->get_matrix()[permutation[f_pos]][permutation[f_pos + 1]]
+                                   - g->get_matrix()[permutation[s_pos - 1]][permutation[s_pos]]
+                                   - g->get_matrix()[permutation[s_pos]][permutation[s_pos + 1]]
+                                   + g->get_matrix()[permutation[f_pos - 1]][permutation[s_pos]]
+                                   + g->get_matrix()[permutation[s_pos]][permutation[f_pos + 1]]
+                                   + g->get_matrix()[permutation[s_pos - 1]][permutation[f_pos]]
+                                   + g->get_matrix()[permutation[f_pos]][permutation[s_pos + 1]];
+                        std::swap(permutation[f_pos], permutation[s_pos]);
+                    }   // zamortyzowany czas O(1)
 
-                    if(curr_val < result){
-                        result = curr_val;
+                    if(curr_val < result){      //jesli rozwiazanie lepsze niz globalne najlepsze
+                        result = curr_val;      //to przypisz jako najlepsze globalne
                         solution = permutation;
                     }
-                    if (curr_val < next_step_val) {
-                        if (tabu_list[s_pos][f_pos] <= step) {
+
+                    if (curr_val < next_step_val) {              //jesli rozwiazanie lepsze niz lokalne (w ramach ruchu)
+                        if (tabu_list[s_pos][f_pos] <= step) {  //jesli ruch jest dostepny to aktualizacja
                             s_tabu = f_pos;
                             f_tabu = s_pos;
                             next_step = permutation;
@@ -143,12 +165,12 @@ void TS(Graph *g){
                         }
                     }
 
-                    std::swap(permutation[f_pos], permutation[s_pos]);
+                    std::swap(permutation[f_pos], permutation[s_pos]);  //powrot do wczesniejszej pozycji i szukanie lepszych ruchow
                     curr_val = curr_val_tmp;
                 }
             }
-            permutation = next_step;
-            tabu_list[f_tabu][s_tabu] += g->get_rank();
+            permutation = next_step;    //przypisanie najlepszego znalezionego ruchu
+            tabu_list[f_tabu][s_tabu] += g->get_rank(); //wrzucenie na liste tabu
         }
 
         //nowa wylosowane podejscie
@@ -169,7 +191,7 @@ void TS(Graph *g){
 
 
 double cooling(double temperature, int t){
-    return (temperature *= 0.85);
+    return (temperature *= 0.95);
 }
 
 double get_probability(int difference,double temperature) //Funkcja określa jak słabe jest sugerowane rozwiązanie
