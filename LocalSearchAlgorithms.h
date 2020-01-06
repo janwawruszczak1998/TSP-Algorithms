@@ -17,6 +17,7 @@ double get_probability(int ,double);
 int random_path(std::vector<int>&, Graph* );
 int calculate_objective(std::vector<int>&, Graph *);
 double cooling(double, int);
+void partial_invert(vector<int>&, int, int);
 
 
 #endif //PEA_LOCALSEARCHALGORITHMS_H
