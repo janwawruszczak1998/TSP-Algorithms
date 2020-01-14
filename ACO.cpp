@@ -9,7 +9,8 @@
 Randoms* randoms = new Randoms(time(NULL));
 
 double Phi(int city_i, int city_j, Ant* ant, Graph* g, std::vector< std::vector<double> >& pheromones){
-    double A = 0.9, B = 0.9;
+    double A = 1.1, B = 4.5;
+
     double eta_ij = (double) pow (1.0 / g->get_matrix()[city_i][city_j], B);
     double tau_ij = (double) pow (pheromones[city_i][city_j],   A);
     double sum = 0.0;
@@ -41,8 +42,8 @@ int route_value(std::vector<int>& permutation, Graph *g){
 }
 
 void updatePheromones(std::vector< std::vector<double> >& pheromones, std::vector< std::vector<int> >& routes, Graph* g){
-    double q = 0.1; //parametr feromonowy - reguluje ile jest kladzione feromonu
-    double ro = 0.1; //ro - parametr aktualizowanego feromonu < 1
+    double q = g->get_rank(); //parametr feromonowy - reguluje ile jest kladzione feromonu
+    double ro = 0.5; //ro - parametr aktualizowanego feromonu < 1
     for(int i = 0; i < routes.size(); ++i){
         int route_i = route_value(routes[i], g); //obliczenie wartosci i-tej trasy
         for(int j = 0; j < routes.size() - 1; ++j){
@@ -111,17 +112,17 @@ void ACO(Graph * g) {
     for(int i = 0; i < g->get_rank(); ++i){
         pheromones[i].resize(g->get_rank());
         for(int j = 0; j < g->get_rank(); ++j){
-            pheromones[i][j] = randoms -> Uniforme() * 20;  //losowa ilość feromonu na krawędziach
+            pheromones[i][j] = randoms -> Uniforme() * g->get_rank() / g->get_matrix()[0][1];  //losowa ilość feromonu na krawędziach
         }
     }
 
 
     //wielokrotne puszczenie mrowek
     for(int i = 0; i < iterations; ++i){
-
+        std::cout << 100 * i / iterations << "%\n";
         //puszczenie mrowek
         for(int ant = 0; ant < numOfAnts; ++ant){
-
+            //std::cout << "Poszla mrowka nr " << ant << "\n";
             //wyczyszczenie starej trasy mrowki numer
             for(std::vector<int>::iterator it = routes[ant].begin(); it != routes[ant].end(); ++it){
                 *it = -1;
@@ -139,6 +140,7 @@ void ACO(Graph * g) {
         for(int i = 0; i < g->get_rank(); ++i) {
             if (route_value(routes[i], g) < best) {
                 best = route_value(routes[i], g);
+                std::cout << "Poprawiono na " << best << "\n";
             }
             for (int j = 0; j < g->get_rank(); ++j)
                 routes[i][j] = -1;
