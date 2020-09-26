@@ -2,77 +2,68 @@
 // Created by Jan on 2019-10-07.
 //
 
+#include <fstream>
+#include <iostream>
 
-#include "Graph.h"
+#include "Graph.hpp"
 
-Graph::Graph(string name){
+Graph::Graph(std::string &&name) {
 
-    ifstream in(name);
+    std::ifstream in(name);
 
     if (!in) {
-        cout << "Niepoprawna nazwa pliku!\n";
+        std::cout << "Niepoprawna nazwa pliku!\n";
         return;
     }
 
     in >> name;
-    in >> n;
+    in >> order;
 
-    int  cost;
-    matrix.resize(n);
-    for(int i = 0; i < n; ++i){
-        matrix[i].resize(n);
-    }
-    for(int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j){
+    int cost{};
+    adjacency_matrix.resize(order, std::vector<int>(order));
+
+    for (int i = 0; i < order; ++i) {
+        for (int j = 0; j < order; ++j) {
             in >> cost;
-            if(i == j) matrix[i][j] = 0;
-            else matrix[i][j] = cost;
+            if (i == j) adjacency_matrix[i][j] = 0;
+            else adjacency_matrix[i][j] = cost;
         }
     }
-
+    display();
 
 }
-Graph::Graph(int n){
 
-    this->n = n;
-    int  cost;
-    matrix.resize(n);
-    for(int i = 0; i < n; ++i){
-        matrix[i].resize(n);
-    }
-    for(int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j){
+Graph::Graph(const int order_)
+        : order(order_) {
+
+    int cost;
+    adjacency_matrix.resize(order, std::vector<int>(order));
+
+    for (int i = 0; i < order; ++i) {
+        for (int j = 0; j < order; ++j) {
             std::cin >> cost;
-            if(cost == -1){ std::cout << "-";}
-            else matrix[i][j] = cost;
+            if (cost == -1) { std::cout << "-"; }
+            else adjacency_matrix[i][j] = cost;
         }
     }
-
-
-}
-Graph::~Graph(){
-
-    for(int i = 0; i < matrix.size(); ++i){
-        matrix[i].clear();
-    }
-    matrix.clear();
 }
 
-void Graph::display(){
-    cout << "Size: " << this->get_rank() << "\n";
-    for(int i = 0; i < get_rank(); ++i){
-        for(int j = 0; j <get_rank(); ++j)
-            cout << get_matrix()[i][j] << " ";
-        cout << "\n";
+
+void Graph::display() {
+    std::cout << "Order: " << order << "\n";
+    for (int i = 0; i < order; ++i) {
+        for (int j = 0; j < order; ++j)
+            std::cout << get_adjacency_matrix()[i][j] << " ";
+        std::cout << std::endl;
     }
     return;
 }
 
-int Graph::get_rank() {
-    return n;
+int Graph::get_graph_order() {
+    return order;
 }
 
 
-vector< vector<int> > &Graph::get_matrix(){
-    return matrix;
+std::vector<std::vector<int>> &Graph::get_adjacency_matrix() {
+    return adjacency_matrix;
 }

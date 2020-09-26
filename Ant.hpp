@@ -11,10 +11,10 @@
 class Ant {
 public:
     Ant(int number, int n);
-    ~Ant();
-
+    
     int get_number();
-    std::vector<bool>& get_tabu();
+
+    std::vector<bool> &get_tabu();
 
 private:
     int number;
