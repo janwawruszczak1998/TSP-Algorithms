@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.13)
-project(PEA)
+project(TSP-Solver)
 
-set(CMAKE_CXX_STANDARD 14)
 
-add_executable(PEA main.cpp Graph.h Graph.cpp ExactAlgorithms.h ExactAlgorithms.cpp LocalSearchAlgorithms.cpp LocalSearchAlgorithms.h)
+add_executable(TSP-Solver main.cpp Graph.cpp ExactAlgorithms.cpp LocalSearchAlgorithms.cpp Ant.cpp ACO.cpp)
+
+target_link_directories(TSP-Solver PUBLIC
+        "$(PROJECT_BINARY_DIR)"
+        )
+target_link_libraries(TSP-Solver PUBLIC
+        ${CMAKE_THREAD_LIBS_INIT}
+        )
