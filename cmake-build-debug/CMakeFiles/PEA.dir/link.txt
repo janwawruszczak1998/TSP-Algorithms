@@ -1,3 +1,0 @@
-"D:\Program Files\JetBrains CLion\CLion 2019.1\bin\cmake\win\bin\cmake.exe" -E remove -f CMakeFiles\PEA.dir/objects.a
-C:\MinGW\bin\ar.exe cr CMakeFiles\PEA.dir/objects.a @CMakeFiles\PEA.dir\objects1.rsp
-C:\MinGW\bin\g++.exe -g   -Wl,--whole-archive CMakeFiles\PEA.dir/objects.a -Wl,--no-whole-archive  -o PEA.exe -Wl,--out-implib,libPEA.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\PEA.dir\linklibs.rsp
