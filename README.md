@@ -10,6 +10,7 @@ make
 a - select graph from existing filest in Graph/
 
 u - user-defined graph, require name, graph order and adjacency matrix
+
 1-6 - algorithm
 
 Enjoy your favourite part of computer science; Algorithms and Data Structures or Computional Complexity...
