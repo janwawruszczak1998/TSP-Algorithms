@@ -2,8 +2,8 @@
 // Created by Jan on 2019-10-07.
 //
 
-#ifndef PEA_EXACTALGORITHMS_H
-#define PEA_EXACTALGORITHMS_H
+#ifndef PEA_EXACT_ALGORITHMS_H
+#define PEA_EXACT_ALGORITHMS_H
 
 #include <vector>
 #include <list>
@@ -14,25 +14,26 @@
 
 using namespace std;
 
-void DP(std::unique_ptr<Graph> &g);
+void DP(std::unique_ptr <Graph> &g);
 
-void BF(std::unique_ptr<Graph> &g);
+void BF(std::unique_ptr <Graph> &g);
 
-void BB(std::unique_ptr<Graph> &g);
+void BB(std::unique_ptr <Graph> &g);
 
-void BF_search(std::unique_ptr<Graph> &, int *, std::list<int> &);
+void BF_search(std::unique_ptr <Graph> &, unsigned *, std::list<unsigned> &);
 
-int BB_search(std::unique_ptr<Graph> &, int *, int *, std::pair<std::list<int>, int> &, int *);
+void BB_search(std::unique_ptr <Graph> &, unsigned *, unsigned *, std::pair<std::list<unsigned>, unsigned> &,
+               std::vector<unsigned> &);
 
 template<typename Container>
-int calculate_objective(Container, std::unique_ptr<Graph> &);
+unsigned calculate_objective(Container, std::unique_ptr <Graph> &);
 
-int random_path(int, std::unique_ptr<Graph> &);
+unsigned random_path(unsigned, std::unique_ptr <Graph> &);
 
-int greedy_path(std::unique_ptr<Graph> &, int, vector<int> &, int);
+unsigned greedy_path(std::unique_ptr <Graph> &, unsigned, vector<unsigned> &, unsigned);
 
-int *get_minimal_edges(std::unique_ptr<Graph> &);
+std::vector<unsigned> get_minimal_edges(std::unique_ptr <Graph> &);
 
-int calculate_lower_bound(const int *, int);
+unsigned calculate_lower_bound(const std::vector<unsigned>&, unsigned);
 
-#endif //PEA_EXACTALGORITHMS_H
+#endif //PEA_EXACT_ALGORITHMS_H

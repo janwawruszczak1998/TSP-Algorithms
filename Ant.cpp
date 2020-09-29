@@ -4,12 +4,12 @@
 
 #include "Ant.hpp"
 
-Ant::Ant(int number, int n){
-    this->number = number;
+Ant::Ant(unsigned number_, unsigned n)
+: number(number_){
     tabu.resize(n, false);
 }
 
-int Ant::get_number() {
+unsigned Ant::get_number() {
     return number;
 }
 

@@ -5,12 +5,15 @@
 #include "LocalSearchAlgorithms.hpp"
 #include "ExactAlgorithms.hpp"
 #include <unistd.h>
+#include "Randoms.hpp"
 
-int random_path(std::vector<int>& v, std::unique_ptr<Graph> &g){
+extern re::Randoms randoms;
+
+unsigned random_path(std::vector<unsigned> &v, std::unique_ptr <Graph> &g) {
 
     v.clear();
     v.reserve(g->get_graph_order());
-    for(int i = 0; i < g->get_graph_order(); ++i){
+    for (unsigned i = 0; i < g->get_graph_order(); ++i) {
         v.push_back(i);
     }
 
@@ -20,55 +23,54 @@ int random_path(std::vector<int>& v, std::unique_ptr<Graph> &g){
 }
 
 
-void SA(std::unique_ptr<Graph> &g){
+void SA(std::unique_ptr <Graph> &g) {
 
-    std::vector<int> solution;
-    int result = random_path(solution, g);   //pierwsze losowe rozwiazanie
+    std::vector<unsigned> solution;
+    unsigned result = random_path(solution, g);   //pierwsze losowe rozwiazanie
     auto permutation(solution);
     auto next_step(permutation);
-    int step_val = calculate_objective(next_step, g);
+    unsigned step_val{};
 
-    int stagnation = 0; //wskaznik stagnacji
+    unsigned stagnation = 0; //wskaznik stagnacji
 
-    int iteration = 0;  //liczba iteracji w ramach jednego chlodzenia i wyzazania
+    unsigned iteration = 0;  //liczba iteracji w ramach jednego chlodzenia i wyzazania
     double temperature = 1e9;   //temperatura poczatkowa
 
-    for(int num_of_try = 0; num_of_try < 100; ++num_of_try) {
+    for (unsigned num_of_try = 0; num_of_try < 100; ++num_of_try) {
         //cout << num_of_try << "%\n";
-        while(temperature > 0.1){
+        while (temperature > 0.1) {
 
             iteration++;
-            int rep = 3*g->get_graph_order();  //liczba obrotow (sprawdzen sasiadow w pokoleniu) = 3n
+            unsigned rep = 3 * g->get_graph_order();  //liczba obrotow (sprawdzen sasiadow w pokoleniu) = 3n
             next_step = permutation;
             step_val = calculate_objective(next_step, g);   //wartosc kroku
 
-            while(rep-->0){
+            while (rep-- > 0) {
 
-                int f_pos = 0;  //wyznaczenie pierwszego miejsca swapa
-                int s_pos = 0;  //wyznaczenie drugiego miejsca swapa
-                do{
-                    f_pos = rand() % g->get_graph_order();
-                    s_pos = rand() % g->get_graph_order();
-                }while(f_pos == s_pos);
-                if(f_pos > s_pos) std::swap(f_pos, s_pos);
+                unsigned f_pos = 0;  //wyznaczenie pierwszego miejsca swapa
+                unsigned s_pos = 0;  //wyznaczenie drugiego miejsca swapa
+                do {
+                    f_pos = randoms.random_in_range(0, g->get_graph_order() - 1);
+                    s_pos = randoms.random_in_range(0, g->get_graph_order() - 1);
+                } while (f_pos == s_pos);
+                if (f_pos > s_pos) std::swap(f_pos, s_pos);
 
-                int curr_val = step_val;
+                unsigned curr_val = step_val;
 
                 //wyznaczenie nastepnikow i poprzednikow miejsc swapa
-                int pre_f_pos = f_pos - 1;
-                int next_f_pos = f_pos + 1;
-                if(f_pos == 0) pre_f_pos = g->get_graph_order() - 1;
+                unsigned pre_f_pos = f_pos - 1;
+                unsigned next_f_pos = f_pos + 1;
+                if (f_pos == 0) pre_f_pos = g->get_graph_order() - 1;
 
-                int pre_s_pos = s_pos - 1;
-                int next_s_pos = s_pos + 1;
-                if(s_pos == g->get_graph_order() - 1) next_s_pos = 0;
+                unsigned pre_s_pos = s_pos - 1;
+                unsigned next_s_pos = s_pos + 1;
+                if (s_pos == g->get_graph_order() - 1) next_s_pos = 0;
 
                 //sprawdzenie wartosci kroku
-                if(s_pos - f_pos == 1 || s_pos == g->get_graph_order() - 1 || f_pos == 0){ //krancowe przypadki
+                if (s_pos - f_pos == 1 || s_pos == g->get_graph_order() - 1 || f_pos == 0) { //krancowe przypadki
                     std::swap(next_step[f_pos], next_step[s_pos]);
                     step_val = calculate_objective(next_step, g);
-                }
-                else{   //ogolny przypadek
+                } else {   //ogolny przypadek
                     step_val = step_val
                                - g->get_adjacency_matrix()[next_step[pre_f_pos]][next_step[f_pos]]
                                - g->get_adjacency_matrix()[next_step[f_pos]][next_step[next_f_pos]]
@@ -81,27 +83,26 @@ void SA(std::unique_ptr<Graph> &g){
                     std::swap(next_step[f_pos], next_step[s_pos]);
                 }
 
-                int difference = step_val - curr_val; //roznica rozwiazan najlepszego i aktualnego
-                if(step_val < result){  //jesli poprawilismy, wyzeruj wskaznik stagnacji i aktualizuj rezultat
+                unsigned difference = step_val - curr_val; //roznica rozwiazan najlepszego i aktualnego
+                if (step_val < result) {  //jesli poprawilismy, wyzeruj wskaznik stagnacji i aktualizuj rezultat
                     stagnation = 0;
                     result = step_val;
                     solution = next_step;
-                }
-                else{   //jesli nie poprawilismy, to zwieksz wskaznik stagnacji
+                } else {   //jesli nie poprawilismy, to zwieksz wskaznik stagnacji
                     stagnation++;
-                    if(stagnation < g->get_graph_order()) {
-                        temperature = (double)(1e9)/2;   //jesli stagnacja jest duza, to zwieksz temperature
+                    if (stagnation < g->get_graph_order()) {
+                        temperature = (double) (1e9) / 2;   //jesli stagnacja jest duza, to zwieksz temperature
 
-                        int f_inv = 0;  //wyznaczenie pierwszego miejsca inverta
-                        int s_inv = 0;  //wyznaczenie drugiego miejsca inverta
-                        do{
-                            f_inv = rand() % g->get_graph_order();
-                            s_inv = rand() % g->get_graph_order();
-                        }while(f_inv == s_inv);
+                        unsigned f_inv = 0;  //wyznaczenie pierwszego miejsca inverta
+                        unsigned s_inv = 0;  //wyznaczenie drugiego miejsca inverta
+                        do {
+                            f_inv = randoms.random_in_range(0, g->get_graph_order() - 1);
+                            s_inv = randoms.random_in_range(0, g->get_graph_order() - 1);
+                        } while (f_inv == s_inv);
 
-                        if(f_inv > s_inv) std::swap(f_inv, s_inv);
-                        for(int i = f_inv; i < (f_pos + s_inv) / 2 - 1; ++i){   //przetasuj permutacje
-                            std::swap(next_step[i], next_step[s_pos - i + f_inv]  );
+                        if (f_inv > s_inv) std::swap(f_inv, s_inv);
+                        for (unsigned i = f_inv; i < (f_pos + s_inv) / 2 - 1; ++i) {   //przetasuj permutacje
+                            std::swap(next_step[i], next_step[s_pos - i + f_inv]);
                             permutation = next_step;
                             break;
                         }
@@ -109,29 +110,28 @@ void SA(std::unique_ptr<Graph> &g){
                 }
 
                 double acc = get_probability(difference, temperature);
-                auto prob = static_cast<double>(rand()) / static_cast<double>((RAND_MAX));
+                auto prob = static_cast<double>(randoms.random_in_range(0, 1e9)) / static_cast<double>((1e9));
 
                 //decyzja o przyjeciu/odrzuceniu rozwiazania
-                if(difference < 0 || (difference > 0 &&  acc > prob) ){
+                if (difference < 0 || (difference > 0 && acc > prob)) {
                     permutation = next_step;
                     break;
-                }
-                else{
+                } else {
                     std::swap(next_step[f_pos], next_step[s_pos]);
                 }
 
 
             }
 
-            temperature = cooling(temperature, iteration);  //akutalizacja temperatury
-            if(iteration > g->get_graph_order()*g->get_graph_order()) break; //jesli zbyt dlugo siedzimy w jednym miejscu
+            temperature = cooling(temperature);  //akutalizacja temperatury
+            if (iteration > g->get_graph_order() * g->get_graph_order())
+                break; //jesli zbyt dlugo siedzimy w jednym miejscu
 
         }
 
         //losowanie nowego punktu startu i reset zmiennych
         random_path(permutation, g);
         next_step = permutation;
-        step_val = calculate_objective(next_step, g);
         iteration = 0;
         stagnation = 0;
         temperature = 1e9;
@@ -140,36 +140,36 @@ void SA(std::unique_ptr<Graph> &g){
     std::cout << "Najlepszy wynik uzyskany SA: " << result << "\n";
 }
 
-void TS(std::unique_ptr<Graph> &g){
+void TS(std::unique_ptr <Graph> &g) {
 
     //preprocessing
-    std::vector<int> permutation, solution;
-    int result = random_path(permutation, g);
-    int stagnation = 0;
-    int curr_val = calculate_objective(permutation, g);
-    std::vector<std::vector<int> > tabu_list;
-    tabu_list.resize(g->get_graph_order(), std::vector<int>(g->get_graph_order(), 0));
-    std::vector<int> next_step;
+    std::vector<unsigned> permutation, solution;
+    unsigned result = random_path(permutation, g);
+    unsigned stagnation = 0;
+    unsigned curr_val = calculate_objective(permutation, g);
+    std::vector <std::vector<unsigned>> tabu_list;
+    tabu_list.resize(g->get_graph_order(), std::vector<unsigned>(g->get_graph_order(), 0));
+    std::vector<unsigned> next_step;
 
 
     //algorytm przeszukiwania z zakazami
-    for(int num_of_try = 0; num_of_try < 100; ++num_of_try) { // 100 losowych instancji
+    for (unsigned num_of_try = 0; num_of_try < 100; ++num_of_try) { // 100 losowych instancji
         //std::cout << num_of_try << "%\n";
-        for (int step = 0; step < 15*g->get_graph_order(); ++step) {   // liczba "ruchów" w calym pokoleniu
-            int next_step_val = std::numeric_limits<int>::max();
-            int f_tabu = 0, s_tabu = 0;
+        for (unsigned step = 0; step < 15 * g->get_graph_order(); ++step) {   // liczba "ruchów" w calym pokoleniu
+            unsigned next_step_val = std::numeric_limits<unsigned>::max();
+            unsigned f_tabu = 0, s_tabu = 0;
             //przeglad ruchow w pozycji
-            for (int f_pos = 0; f_pos < g->get_graph_order(); ++f_pos) {
+            for (unsigned f_pos = 0; f_pos < g->get_graph_order(); ++f_pos) {
 
-                for (int s_pos = f_pos + 1; s_pos < g->get_graph_order(); ++s_pos) {
+                for (unsigned s_pos = f_pos + 1; s_pos < g->get_graph_order(); ++s_pos) {
 
-                    int curr_val_tmp = curr_val;
+                    unsigned curr_val_tmp = curr_val;
 
-                    if(s_pos - f_pos == 1 || s_pos == g->get_graph_order() - 1 || f_pos == 0){ //krancowe przypadki ruchow - aktualizacja O(n)
+                    if (s_pos - f_pos == 1 || s_pos == g->get_graph_order() - 1 ||
+                        f_pos == 0) { //krancowe przypadki ruchow - aktualizacja O(n)
                         std::swap(permutation[f_pos], permutation[s_pos]);
                         curr_val = calculate_objective(permutation, g);
-                    }
-                    else{   //ogolny przypadek - aktualizacja w O(1)
+                    } else {   //ogolny przypadek - aktualizacja w O(1)
                         curr_val = curr_val
                                    - g->get_adjacency_matrix()[permutation[f_pos - 1]][permutation[f_pos]]
                                    - g->get_adjacency_matrix()[permutation[f_pos]][permutation[f_pos + 1]]
@@ -182,7 +182,7 @@ void TS(std::unique_ptr<Graph> &g){
                         std::swap(permutation[f_pos], permutation[s_pos]);
                     }   // zamortyzowany czas O(1)
 
-                    if(curr_val < result){      //jesli rozwiazanie lepsze niz globalne najlepsze
+                    if (curr_val < result) {      //jesli rozwiazanie lepsze niz globalne najlepsze
                         result = curr_val;      //to przypisz jako najlepsze globalne
                         solution = permutation;
                     }
@@ -195,24 +195,24 @@ void TS(std::unique_ptr<Graph> &g){
                             next_step_val = curr_val;
                         }
                         stagnation = 0;
-                    }
-                    else{   //jesli nie poprawilismy, to zwieksz wskaznik stagnacji
+                    } else {   //jesli nie poprawilismy, to zwieksz wskaznik stagnacji
                         stagnation++;
-                        if(stagnation < g->get_graph_order() * sqrt(g->get_graph_order() )) {
-                            int f_inv = 0;  //wyznaczenie pierwszego miejsca inverta
-                            int s_inv = 0;  //wyznaczenie drugiego miejsca inverta
-                            do{
-                                f_inv = rand() % g->get_graph_order();
-                                s_inv = rand() % g->get_graph_order();
-                            }while(f_inv == s_inv);
-                            if(f_inv > s_inv) std::swap(f_inv, s_inv);
-                     //       for(int i = f_inv; i < (f_pos + s_inv) / 2; ++i){   //przetasuj permutacje
-                     //           std::swap(permutation[i], permutation[s_pos - i + f_inv]  );
-                     //       }
+                        if (stagnation < g->get_graph_order() * sqrt(g->get_graph_order())) {
+                            unsigned f_inv = 0;  //wyznaczenie pierwszego miejsca inverta
+                            unsigned s_inv = 0;  //wyznaczenie drugiego miejsca inverta
+                            do {
+                                f_inv = randoms.random_in_range(0, g->get_graph_order() - 1);
+                                s_inv = randoms.random_in_range(0, g->get_graph_order() - 1);
+                            } while (f_inv == s_inv);
+                            if (f_inv > s_inv) std::swap(f_inv, s_inv);
+                            //       for(unsigned i = f_inv; i < (f_pos + s_inv) / 2; ++i){   //przetasuj permutacje
+                            //           std::swap(permutation[i], permutation[s_pos - i + f_inv]  );
+                            //       }
                         }
                     }
 
-                    std::swap(permutation[f_pos], permutation[s_pos]);  //powrot do wczesniejszej pozycji i szukanie lepszych ruchow
+                    std::swap(permutation[f_pos],
+                              permutation[s_pos]);  //powrot do wczesniejszej pozycji i szukanie lepszych ruchow
                     curr_val = curr_val_tmp;
                 }
             }
@@ -223,12 +223,12 @@ void TS(std::unique_ptr<Graph> &g){
         //nowa wylosowane podejscie
         permutation.clear();
         random_path(permutation, g);
-        for(auto tabu_vec : tabu_list){
+        for (auto tabu_vec : tabu_list) {
             tabu_vec.clear();
         }
         tabu_list.clear();
         tabu_list.resize(g->get_graph_order());
-        for(auto tabu_vec : tabu_list){
+        for (auto tabu_vec : tabu_list) {
             tabu_vec.resize(g->get_graph_order(), 0);
         }
     }
@@ -237,20 +237,19 @@ void TS(std::unique_ptr<Graph> &g){
 }
 
 
-double cooling(double temperature, int t){
-    //cout << log(t + 1) << "\n";
+double cooling(double temperature) {
     return (temperature *= 0.95);
 }
 
-double get_probability(int difference,double temperature) //Funkcja określa jak słabe jest sugerowane rozwiązanie
+double get_probability(unsigned difference, double temperature) //Funkcja określa jak słabe jest sugerowane rozwiązanie
 {
-    return exp(-1*difference/temperature);
+    return exp(-1 * difference / temperature);
 }
 
-int calculate_objective(std::vector<int>& permutation, std::unique_ptr<Graph> &g){
-    int result = 0;
+unsigned calculate_objective(std::vector<unsigned> &permutation, std::unique_ptr <Graph> &g) {
+    unsigned result = 0;
 
-    for(auto it = permutation.cbegin(); it + 1 != permutation.cend(); ++it) {
+    for (auto it = permutation.cbegin(); it + 1 != permutation.cend(); ++it) {
         result += g->get_adjacency_matrix()[*it][*(it + 1)];
 
     }
@@ -260,8 +259,8 @@ int calculate_objective(std::vector<int>& permutation, std::unique_ptr<Graph> &g
 
 }
 
-void partial_invert(vector<int> & permutation, int start, int finish) {
-    for(int i = start; i = start + (start - finish) / 2; ++start){
+void partial_invert(vector<unsigned> &permutation, unsigned start, unsigned finish) {
+    for (unsigned i = start; i == start + (start - finish) / 2; ++i) {
         std::swap(permutation[i], permutation[finish - i - start]);
     }
 }

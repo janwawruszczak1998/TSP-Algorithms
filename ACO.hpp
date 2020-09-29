@@ -10,14 +10,14 @@
 
 void ACO(std::unique_ptr<Graph> &);
 
-void calculate_route(Ant *, std::vector<std::vector<int> > &, std::unique_ptr<Graph> &, std::vector<std::vector<double> > &);
+void calculate_route(Ant *, std::vector<std::vector<unsigned> > &, std::unique_ptr<Graph> &, std::vector<std::vector<double> > &);
 
-double Phi(int, int, Ant *, std::unique_ptr<Graph> &, std::vector<std::vector<double> > &);
+double Phi(unsigned, unsigned, Ant *, std::unique_ptr<Graph> &, std::vector<std::vector<double> > &);
 
-int getNextCity(std::vector<double> &);
+unsigned getNextCity(std::vector<double> &);
 
-void updatePheromones(std::vector<std::vector<double> > &, std::vector<std::vector<int> > &, std::unique_ptr<Graph> &);
+void updatePheromones(std::vector<std::vector<double> > &, std::vector<std::vector<unsigned> > &, std::unique_ptr<Graph> &);
 
-int route_value(std::vector<int> &, std::unique_ptr<Graph> &);
+unsigned route_value(std::vector<unsigned> &, std::unique_ptr<Graph> &);
 
 #endif //PEA_ACO_HPP

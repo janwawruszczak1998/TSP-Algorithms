@@ -14,13 +14,13 @@ void TS(std::unique_ptr<Graph> &g);
 
 void SA(std::unique_ptr<Graph> &g);
 
-double get_probability(int, double);
+double get_probability(unsigned, double);
 
-int calculate_objective(std::vector<int> &, std::unique_ptr<Graph> &);
+unsigned calculate_objective(std::vector<unsigned> &, std::unique_ptr<Graph> &);
 
-double cooling(double, int);
+double cooling(double);
 
-void partial_invert(vector<int> &, int, int);
+void partial_invert(vector<unsigned> &, unsigned, unsigned);
 
 
 #endif //PEA_LOCALSEARCHALGORITHMS_HPP

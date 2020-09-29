@@ -10,14 +10,14 @@
 
 class Ant {
 public:
-    Ant(int number, int n);
-    
-    int get_number();
+    Ant(unsigned, unsigned);
+
+    unsigned get_number();
 
     std::vector<bool> &get_tabu();
 
 private:
-    int number;
+    unsigned number;
     std::vector<bool> tabu;
 };
 
